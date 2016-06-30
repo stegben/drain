@@ -39,7 +39,7 @@ Drain builds on drake and adds:
 This is a toy example, in which each `Step` produces a number.
 
 1. We define a simple `Step` that wraps a numeric value:
-	```
+	```python
 	class Scalar(Step):
 		def __init__(self, value, **kwargs):
 			
@@ -58,7 +58,7 @@ This is a toy example, in which each `Step` produces a number.
 	Note that the result of a step's `run()` method is accessible via `get_result()`.
 
 3. Steps can use the results of others steps, called `inputs`. For example we can define an `Add` step which adds the values of its inputs:
-	```
+	```python
 	class Add(Step):
 		def __init__(self, inputs):
 			Step.__init__(self, inputs=inputs)
@@ -69,12 +69,12 @@ This is a toy example, in which each `Step` produces a number.
 
 	In order to avoid calling `get_result()`, drain does so-called inputs mapping which is explained in the corresponding section below. In its most basic form, inputs mapping allows us to rewrite `Add.run` as follows:
 
-	```
+	```python
 	def run(self, *values):
 		return sum(values)
 	```
 
-	```
+	```python
 	a = Add(inputs = [Scalar(value=v) for v in range(1,10)])
 	```
 	
@@ -119,32 +119,32 @@ The `inputs_mapping` argument to a step allows for convenience and flexibility i
 #### Default behavior
 
 By default, results are passed as positional arguments. So a step with `inputs=[a, b]` will have `run` called as
-```
+```python
 run(a.get_result(), b.get_result())
 ```
 
 When a step produces multiple items as the result of run() it is often useful to name them and return them as a dictionary. Dictionary results are merged (with later inputs overriding earlier ones?) and passed to `run` as keyword arguments. So if inputs `a` and `b` had dictionary results with keys `a_0, a_1` and `b_0, b_1`, respectively, then `run` will be called as
 
-```
+```python
 run(a_0=a.get_result()['a_0'], a_1=a.get_result()['a_1'],
     b_0=a.get_result()['b_0'], b_1=b.get_result()['b_1'])
 ```
 
 #### Custom behavior
 This mapping of input results to run arguments can be customized when constructing steps. For example if the results of `a` and `b` are objects then specifying
-```
+```python
 inputs_mapping = ['a', 'b']
 ```
 will result in the call
-```
+```python
 run(a=a.get_result(), b=b.get_result()
 ```
 If `a` and `b` return dicts then the mapping can be used to change their keywords or exclude the values:
-```
+```python
 inputs_mapping = [{'a_0':'alpha_0', 'a_1': None}, {'b_1':'beta_1'}]
 ```
 will result in the call
-```
+```python
 run(alpha_0=a.get_result()['a_0'],
     b_0=a.get_result()['b_0'], beta_1=b.get_result()['beta_1'])
 ```
@@ -154,7 +154,7 @@ where:
 - `b_0` has been preserved.
 
 To ignore the inputs mapping simply define
-```
+```python
 def run(self, *args, **kwargs):
     results = [i.get_result() for i in self.inputs]
 ```
